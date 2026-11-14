@@ -1,0 +1,28 @@
+[
+  {
+    "guid": "ec199d02-59bc-4ad2-89b4-38011fa74983",
+    "name": "Binge Playlist Sync",
+    "description": "Syncs Binge playlists and playlist progress for each Jellyfin user.",
+    "overview": "Sync Binge playlists between Apple TVs running MediaHarbour.",
+    "owner": "esteeds1",
+    "category": "General",
+    "versions": [
+      {
+        "version": "1.0.0.1",
+        "targetAbi": "12.4.0.0",
+        "sourceUrl": "https://github.com/esteeds1/jellyfintools/releases/download/binge-sync-v1.0.0/BingePlaylistSync-Jellyfin-12.4.0.zip",
+        "checksum": "c92bed74bd7b00633afddc9659d8db62",
+        "changelog": "Initial Binge playlist sync release.",
+        "timestamp": "2026-11-14T16:07:30Z"
+      },
+      {
+        "version": "1.0.0.0",
+        "targetAbi": "10.11.11.0",
+        "sourceUrl": "https://github.com/esteeds1/jellyfintools/releases/download/binge-sync-v1.0.0/BingePlaylistSync-Jellyfin-10.11.11.zip",
+        "checksum": "ff8daa008652561682337c9536771264",
+        "changelog": "Initial Binge playlist sync release.",
+        "timestamp": "2026-11-14T16:07:30Z"
+      }
+    ]
+  }
+]
