@@ -8,6 +8,22 @@
     "category": "General",
     "versions": [
       {
+        "version": "1.1.0.1",
+        "targetAbi": "12.4.0.0",
+        "sourceUrl": "https://github.com/esteeds1/jellyfintools/releases/download/binge-sync-v1.1.0/BingePlaylistSync-Jellyfin-12.4.0.zip",
+        "checksum": "42d020ed270c5fb3326dab1989db7efb",
+        "changelog": "Adds IPTV Favourites and Recently Watched sync.",
+        "timestamp": "2026-11-27T22:04:43Z"
+      },
+      {
+        "version": "1.1.0.0",
+        "targetAbi": "10.11.11.0",
+        "sourceUrl": "https://github.com/esteeds1/jellyfintools/releases/download/binge-sync-v1.1.0/BingePlaylistSync-Jellyfin-10.11.11.zip",
+        "checksum": "cb3de039cec98f42bf5197c0c33f735f",
+        "changelog": "Adds IPTV Favourites and Recently Watched sync.",
+        "timestamp": "2026-11-27T22:04:43Z"
+      },
+      {
         "version": "1.0.0.1",
         "targetAbi": "12.4.0.0",
         "sourceUrl": "https://github.com/esteeds1/jellyfintools/releases/download/binge-sync-v1.0.0/BingePlaylistSync-Jellyfin-12.4.0.zip",
