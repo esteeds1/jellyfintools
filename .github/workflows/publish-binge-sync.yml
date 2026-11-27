@@ -1,0 +1,85 @@
+name: Publish Binge Playlist Sync 1.1.0
+
+on:
+  push:
+    branches: [main]
+    paths: [.github/workflows/publish-binge-sync.yml]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  publish:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TAG: binge-sync-v1.1.0
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: |
+            9.0.x
+            10.0.x
+      - name: Build and publish plug-in ZIPs
+        run: |
+          set -euo pipefail
+          mkdir -p release
+          if gh release view "$TAG" >/dev/null 2>&1; then
+            gh release download "$TAG" --pattern 'BingePlaylistSync-Jellyfin-*.zip' --dir release
+          else
+            for target in '10.11.11:1.1.0.0' '12.4.0:1.1.0.1'; do
+              IFS=: read -r abi version <<< "$target"
+              output="$RUNNER_TEMP/binge-sync-$abi"
+              dotnet build binge-playlist-sync/Jellyfin.Plugin.BingeSync \
+                -c Release -p:JellyfinVersion="$abi" -p:Version="$version" -o "$output"
+              zip -j "release/BingePlaylistSync-Jellyfin-$abi.zip" "$output/Jellyfin.Plugin.BingeSync.dll"
+              unzip -t "release/BingePlaylistSync-Jellyfin-$abi.zip"
+            done
+            gh release create "$TAG" release/*.zip --target "$GITHUB_SHA" \
+              --title "Binge Playlist Sync 1.1.0" \
+              --notes "Adds IPTV Favourites and Recently Watched sync for MediaHarbour."
+          fi
+      - name: Update Jellyfin catalog
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin main
+          python3 - <<'PY'
+          import hashlib
+          import json
+          import os
+          from datetime import datetime, timezone
+          from pathlib import Path
+
+          manifest = Path("binge-playlist-sync/manifest.json")
+          catalog = json.loads(manifest.read_text())
+          plugin = next(p for p in catalog if p["guid"] == "ec199d02-59bc-4ad2-89b4-38011fa74983")
+          existing = {entry["version"]: entry for entry in plugin["versions"]}
+          timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
+
+          for abi, version in [("10.11.11", "1.1.0.0"), ("12.4.0", "1.1.0.1")]:
+              asset = Path("release") / f"BingePlaylistSync-Jellyfin-{abi}.zip"
+              checksum = hashlib.md5(asset.read_bytes()).hexdigest()
+              if version in existing:
+                  if existing[version]["checksum"] != checksum:
+                      raise SystemExit(f"Catalog checksum mismatch for {version}")
+                  continue
+              plugin["versions"].insert(0, {
+                  "version": version,
+                  "targetAbi": abi + ".0",
+                  "sourceUrl": f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/releases/download/{os.environ['TAG']}/{asset.name}",
+                  "checksum": checksum,
+                  "changelog": "Adds IPTV Favourites and Recently Watched sync.",
+                  "timestamp": timestamp,
+              })
+
+          manifest.write_text(json.dumps(catalog, indent=2) + "\n")
+          PY
+          if git diff --quiet -- binge-playlist-sync/manifest.json; then exit 0; fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add binge-playlist-sync/manifest.json
+          git commit -m 'Publish Binge Playlist Sync 1.1.0 in the catalog'
+          git push origin HEAD:main
