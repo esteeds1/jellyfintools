@@ -35,6 +35,23 @@ The plugin DLL is under `bin/Release/net10.0` or `bin/Release/net9.0` inside the
 - Playlist objects have a UUID `id`, a `name`, a `kind` (`movies`, `tv`, `music`, or `mixed`), and an ordered `items` array. The plugin preserves optional fields such as playlist playback progress and cleanup settings. A write replaces the account's snapshot. Omitted playlist UUIDs are recorded as deletions for clients importing an older copy. The per-user snapshot limit is 8 MiB.
 - Include the `binge-playlist-sync` subdirectory of Jellyfin's data path (`IApplicationPaths.DataPath`) when backing up Binge playlists.
 
+## IPTV sync in version 1.1.0
+
+Build from these sources for the matching Jellyfin target, then replace the existing
+plug-in DLL while Jellyfin is stopped. Remove any duplicate older installation
+before restarting. The catalog still serves the previously published release.
+
+In MediaHarbour 3.2.6 build 479, enable **Sync IPTV Favourites and Recently Watched**
+under **Settings → Binge Playlist Sync** on each Apple TV. Use the same Jellyfin
+server address and account, and the same M3U playlist on every device for direct
+IPTV. Channel IDs must match, including the stream URLs used to derive them. The
+app uploads only SHA-256 channel identifiers and watch timestamps. Playlist URLs,
+credentials, and guide sources are configured separately on each device.
+
+The authenticated `GET` and `PUT /BingeSync/v1/IPTV` routes use a separate
+per-user revision and store. A stale write returns HTTP 409. Reverse proxies
+must forward this route as well as the existing playlist route.
+
 ## Licence
 
 GPL-3.0-only. See [LICENSE](LICENSE).

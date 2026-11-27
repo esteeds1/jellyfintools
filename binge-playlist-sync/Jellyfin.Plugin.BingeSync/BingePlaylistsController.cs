@@ -8,7 +8,7 @@ namespace Jellyfin.Plugin.BingeSync;
 [Authorize]
 [Route("BingeSync/v1/Playlists")]
 [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-public sealed class BingePlaylistsController(PlaylistStore store) : ControllerBase
+public sealed class BingePlaylistsController(PlaylistStore store, IptvStore iptv) : ControllerBase
 {
     [HttpGet]
     public async Task<ActionResult<Snapshot>> Get([FromQuery] string? revision, CancellationToken cancellationToken)
@@ -47,6 +47,23 @@ public sealed class BingePlaylistsController(PlaylistStore store) : ControllerBa
         {
             return StatusCode(StatusCodes.Status413PayloadTooLarge);
         }
+    }
+
+    [HttpGet("/BingeSync/v1/IPTV")]
+    public async Task<ActionResult<IptvSnapshot>> GetIptv(CancellationToken cancellationToken)
+    {
+        if (UserId() is not { } userId) return Forbid();
+        return Ok(await iptv.ExchangeAsync(userId, null, cancellationToken).ConfigureAwait(false));
+    }
+
+    [HttpPut("/BingeSync/v1/IPTV")]
+    [RequestSizeLimit(PlaylistStore.MaxBytes)]
+    public async Task<ActionResult<IptvSnapshot>> PutIptv([FromBody] IptvSnapshot write, CancellationToken cancellationToken)
+    {
+        if (UserId() is not { } userId) return Forbid();
+        if (!IptvStore.IsValid(write)) return BadRequest("Invalid IPTV snapshot.");
+        var result = await iptv.ExchangeAsync(userId, write, cancellationToken).ConfigureAwait(false);
+        return result is null ? Conflict() : Ok(result);
     }
 
     private Guid? UserId()
