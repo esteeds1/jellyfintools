@@ -1,4 +1,4 @@
-name: Publish Binge Playlist Sync 1.1.0
+name: Publish Media Harbour Plugin 1.1.1
 
 on:
   push:
@@ -15,7 +15,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GH_TOKEN: ${{ github.token }}
-      TAG: binge-sync-v1.1.0
+      TAG: media-harbour-plugin-v1.1.1
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-dotnet@v4
@@ -30,7 +30,7 @@ jobs:
           if gh release view "$TAG" >/dev/null 2>&1; then
             gh release download "$TAG" --pattern 'BingePlaylistSync-Jellyfin-*.zip' --dir release
           else
-            for target in '10.11.11:1.1.0.0' '12.4.0:1.1.0.1'; do
+            for target in '10.11.11:1.1.1.0' '12.4.0:1.1.1.1'; do
               IFS=: read -r abi version <<< "$target"
               output="$RUNNER_TEMP/binge-sync-$abi"
               dotnet build binge-playlist-sync/Jellyfin.Plugin.BingeSync \
@@ -39,8 +39,8 @@ jobs:
               unzip -t "release/BingePlaylistSync-Jellyfin-$abi.zip"
             done
             gh release create "$TAG" release/*.zip --target "$GITHUB_SHA" \
-              --title "Binge Playlist Sync 1.1.0" \
-              --notes "Adds IPTV Favourites and Recently Watched sync for MediaHarbour."
+              --title "Media Harbour Plugin 1.1.1" \
+              --notes "Renames the plugin and adds catalog artwork."
           fi
       - name: Update Jellyfin catalog
         run: |
@@ -59,7 +59,7 @@ jobs:
           existing = {entry["version"]: entry for entry in plugin["versions"]}
           timestamp = datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ")
 
-          for abi, version in [("10.11.11", "1.1.0.0"), ("12.4.0", "1.1.0.1")]:
+          for abi, version in [("10.11.11", "1.1.1.0"), ("12.4.0", "1.1.1.1")]:
               asset = Path("release") / f"BingePlaylistSync-Jellyfin-{abi}.zip"
               checksum = hashlib.md5(asset.read_bytes()).hexdigest()
               if version in existing:
@@ -71,7 +71,7 @@ jobs:
                   "targetAbi": abi + ".0",
                   "sourceUrl": f"https://github.com/{os.environ['GITHUB_REPOSITORY']}/releases/download/{os.environ['TAG']}/{asset.name}",
                   "checksum": checksum,
-                  "changelog": "Adds IPTV Favourites and Recently Watched sync.",
+                  "changelog": "Renames the plugin and adds catalog artwork.",
                   "timestamp": timestamp,
               })
 
@@ -81,5 +81,5 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git add binge-playlist-sync/manifest.json
-          git commit -m 'Publish Binge Playlist Sync 1.1.0 in the catalog'
+          git commit -m 'Publish Media Harbour Plugin 1.1.1 in the catalog'
           git push origin HEAD:main

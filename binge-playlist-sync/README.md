@@ -1,15 +1,17 @@
-# Binge Playlist Sync for Jellyfin
+# Media Harbour Plugin for Jellyfin
 
-Binge Playlist Sync stores and shares Binge playlists between devices signed in to the same Jellyfin user account. The plugin stores its data on the Jellyfin host and serves it through Jellyfin's existing HTTP interface and user sessions. Binge playlists appear in compatible clients such as MediaHarbour 3.2.5 build 410. They use their own storage and API alongside Jellyfin's built-in playlists.
+The Media Harbour Plugin stores and shares Binge playlists between devices signed in to the same Jellyfin user account. The plugin stores its data on the Jellyfin host and serves it through Jellyfin's existing HTTP interface and user sessions. Binge playlists appear in compatible clients such as MediaHarbour 3.2.5 build 410. They use their own storage and API alongside Jellyfin's built-in playlists.
 
 ## Install
 
-The release archive includes builds tested on Jellyfin 12.4.0 and 10.11.11.
+Install **Media Harbour Plugin** from the Jellyfin plugin catalog using the [repository manifest](https://raw.githubusercontent.com/esteeds1/jellyfintools/main/binge-playlist-sync/manifest.json). Builds are available for Jellyfin 12.4.0 and 10.11.11.
+
+For a manual install, download the release ZIP matching your Jellyfin version.
 
 1. Stop Jellyfin.
 2. Create a `BingePlaylistSync` subdirectory in Jellyfin's plugin directory. The plugin directory is commonly `/var/lib/jellyfin/plugins` for Linux packages or `/config/plugins` inside the official Docker container.
-3. Copy the `Jellyfin.Plugin.BingeSync.dll` from the archive's matching `jellyfin-12.4.0` or `jellyfin-10.11.11` folder into that subdirectory.
-4. Start Jellyfin and check **Dashboard → Plugins** for **Binge Playlist Sync**.
+3. Copy the `Jellyfin.Plugin.BingeSync.dll` from the root of the ZIP into that subdirectory.
+4. Start Jellyfin and check **Dashboard → Plugins** for **Media Harbour Plugin**.
 5. Open build 410 on each Apple TV and sign in to the same Jellyfin user. Create a Binge playlist on one device and check Binge on the other. Active clients check for changes about every four seconds.
 
 See the [Jellyfin plugin installation docs](https://jellyfin.org/docs/general/server/plugins/) for other platforms. The plugin uses Jellyfin's existing base URL, including any path prefix configured on your reverse proxy.
@@ -39,10 +41,10 @@ The plugin DLL is under `bin/Release/net10.0` or `bin/Release/net9.0` inside the
 
 Build from these sources for the matching Jellyfin target, then replace the existing
 plug-in DLL while Jellyfin is stopped. Remove any duplicate older installation
-before restarting. The catalog still serves the previously published release.
+before restarting.
 
 In MediaHarbour 3.2.6 build 479, enable **Sync IPTV Favourites and Recently Watched**
-under **Settings → Binge Playlist Sync** on each Apple TV. Use the same Jellyfin
+under **Settings → Media Harbour Plugin** on each Apple TV. Use the same Jellyfin
 server address and account, and the same M3U playlist on every device for direct
 IPTV. Channel IDs must match, including the stream URLs used to derive them. The
 app uploads only SHA-256 channel identifiers and watch timestamps. Playlist URLs,
